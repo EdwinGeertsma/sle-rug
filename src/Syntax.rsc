@@ -12,13 +12,11 @@ start syntax Form
 
 // TODO: question, computed question, block, if-then-else, if-then
 syntax Question 
-  = Str Id name ":" Type |                  // Question
-    Str Id name ":" Type "=" Expr  |        // Computed Question
-    "if" "(" Expr ")" Block "else" Block |  // If-Then-Else
-    "if" "(" Expr ")" Block;                // If-Then
+  = Str Id name ":" Type varType |                  // Question
+    Str Id name ":" Type varType "=" Expr expr |        // Computed Question
+    "if" "(" Expr expr ")" "{" Question* ifBlock "}" "else" "{" Question* elseBlock "}"|  // If-Then-Else
+    "if" "(" Expr expr ")" "{" Question* ifBlock "}";                // If-Then
 
-syntax Block 
- = "{" Question* questions "}";
 
 
 // TODO: +, -, *, /, &&, ||, !, >, <, <=, >=, ==, !=, literals (bool, int, str)

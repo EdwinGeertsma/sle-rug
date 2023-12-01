@@ -12,6 +12,10 @@ data AForm(loc src = |tmp:///|)
   ; 
 
 data AQuestion(loc src = |tmp:///|)
+  = question(str name, AType varType) |
+   computedQuestion(str name, AType varType, AExpr expr) |
+   ifThenElse(AExpr expr, list[AQuestion] ifBlock, list[AQuestion] elseBlock) |
+   ifThen(AExpr expr, list[AQuestion] ifBlock)
   ; 
 
 data AExpr(loc src = |tmp:///|)
