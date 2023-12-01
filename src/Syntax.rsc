@@ -32,18 +32,18 @@ syntax Expr
   | bracket "(" Expr ")" 
   > left Expr "||" Expr
   > left Expr "&&" Expr
-  > left ( Expr "!=" Expr | Expr "==" )
-  > left ( Expr "\<" Expr | Expr "\>" | Expr "\<=" | Expr "\>=" )
+  > left ( Expr "!=" Expr | Expr "==" Expr)
+  > left ( Expr "\<" Expr | Expr "\>" Expr | Expr "\<=" Expr| Expr "\>=" Expr)
   > left ( Expr "*" Expr | Expr "/" Expr )
   > left ( Expr "+" Expr | Expr "-" Expr ) 
   ;
   
 syntax Type 
  =  "string" |
-    "integer"
+    "integer" |
     "boolean";
 
-lexical Str = "\"" ![\"] "\"";
+lexical Str = "\"" (![\"])* "\"";
 
 lexical Int 
   = [0-9]+;
