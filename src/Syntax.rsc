@@ -28,14 +28,19 @@ syntax Expr
   = Id \ "true" \ "false" // true/false are reserved keywords.
   ;
   
-syntax Type = ;
+syntax Type 
+ =  Str |
+    Int
+    Bool;
 
-lexical Str = ;
+lexical Str = "\"" ![\"] "\"";
 
 lexical Int 
-  = ;
+  = [0-9]+;
 
-lexical Bool = ;
+lexical Bool 
+  = "true" |
+    "false ";
 
 
 
