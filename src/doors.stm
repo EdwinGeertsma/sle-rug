@@ -1,0 +1,9 @@
+machine Doors
+
+state closed
+    open=> opened
+end
+
+state opened
+    close => closed
+end
