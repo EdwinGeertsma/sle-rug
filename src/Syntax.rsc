@@ -26,12 +26,22 @@ syntax Block
 // and use C/Java style precedence rules (look it up on the internet)
 syntax Expr 
   = Id \ "true" \ "false" // true/false are reserved keywords.
+  | Bool
+  | Int
+  | Str
+  | bracket "(" Expr ")" 
+  > left Expr "||" Expr
+  > left Expr "&&" Expr
+  > left ( Expr "!=" Expr | Expr "==" )
+  > left ( Expr "\<" Expr | Expr "\>" | Expr "\<=" | Expr "\>=" )
+  > left ( Expr "*" Expr | Expr "/" Expr )
+  > left ( Expr "+" Expr | Expr "-" Expr ) 
   ;
   
 syntax Type 
- =  Str |
-    Int
-    Bool;
+ =  "string" |
+    "integer"
+    "boolean";
 
 lexical Str = "\"" ![\"] "\"";
 
