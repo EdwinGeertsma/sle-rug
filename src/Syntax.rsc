@@ -28,12 +28,15 @@ syntax Expr
   | Int
   | Str
   | bracket "(" Expr ")" 
-  > left Expr "||" Expr
-  > left Expr "&&" Expr
-  > left ( Expr "!=" Expr | Expr "==" Expr)
-  > left ( Expr "\<" Expr | Expr "\>" Expr | Expr "\<=" Expr| Expr "\>=" Expr)
-  > left ( Expr "*" Expr | Expr "/" Expr )
-  > left ( Expr "+" Expr | Expr "-" Expr ) 
+
+  > left (Expr left "*" Expr right | Expr left "/" Expr right)
+  > left (Expr left "+" Expr right | Expr left "-" Expr right) 
+
+  > right "!" Expr not
+  > left (Expr left "!=" Expr right | Expr left "==" Expr right |
+          Expr left "\<" Expr right | Expr left "\>" Expr right | 
+          Expr left "\<=" Expr right | Expr left "\>=" Expr right)
+  > left (Expr left "||" Expr right | Expr left "&&" Expr right)
   ;
   
 syntax Type 
