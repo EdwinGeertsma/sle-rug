@@ -37,7 +37,7 @@ Use uses(AForm f) {
 
 Def defs(AForm f) {
   Def defs = {};
-  for (/AQuestion question <- f) {
+  for (/AQuestion q <- f) {
     switch(question) {
       case question(AId id, _, _):
         defs = defs + {<id.name, id.src>};

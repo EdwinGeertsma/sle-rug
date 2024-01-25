@@ -7,7 +7,7 @@ form binary {
       if (x_1_3) { 
         "Is the number between 1 and 2" x_1_2: boolean
         if (x_1_2) { 
-          "The answer is" answer_1_2: integer = (8000)
+          "The answer is" answer_1_2: integer = (1)
         }
         else { 
           "The answer is" answer_2_3: integer = (2)

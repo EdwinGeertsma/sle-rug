@@ -1,0 +1,54 @@
+form taxOfficeExample { 
+  "Did you buy a house in 2010?"
+    hasBoughtHouse: boolean
+    
+  "Did you enter a loan?"
+    hasMaintLoan: boolean
+    
+  "Did you sell a house in 2010?"
+    hasSoldHouse: boolean
+
+  "Question diff type err 1"
+    hasT1: boolean
+  "Question diff type err 2"
+    hasT1: integer
+
+  "Question same label warn 1"
+    q_s_w_1: integer 
+  "Question same label warn 1"
+    q_s_w_2: integer
+
+  ""
+    q1: integer
+  ""
+    q2: integer
+
+  "Wrong type 1"
+    q3: integer = true
+  
+  "Wrong type 2"
+    q4: boolean = 1
+
+  "Wrong type 3"
+    q5: string = false
+
+  "Q int type"
+    q_int: integer = 100
+  
+  if(q_int) {
+
+  }
+
+  "undlecared var"
+    q_err_undecl: integer = (err_unkn_var - q_int) * 50
+  
+  if (hasSodHouse) {
+    "What was the selling price?"
+      sellingPrice: boolean
+    "Private debts for the sold house:"
+      privateDebt: integer
+    "Value residue:"
+      valueResidue: integer = 
+        ((sellingPrice - privateDebt) * true)
+  }
+}

@@ -4,6 +4,7 @@ import Syntax;
 import Resolve;
 import AST;
 
+import IO;
 /* 
  * Transforming QL forms
  */
@@ -29,7 +30,42 @@ import AST;
  */
  
 AForm flatten(AForm f) {
-  return f; 
+  list[AQuestion] questions= [];
+  for(q <- f.questions) {
+    questions = question + _flatten(q, boolExpr(true));
+  }
+  return form(f.name, questions); 
+}
+
+list[AQuestion] _flatten(AQuestion q, AExpr condition) {
+  switch(q) {
+    case question(id(name), text, varType) :
+      return [ifThen(condition, [question(id(name), text, varType)])];
+    
+    case computedQuestion(id(name), text, varType, expr) :
+      return [ifThen(condition, [computedQuestion(id(name), text, varType, expr)])];
+    
+    case ifThenElse(expr, ifQuestions, elseQuestions): {
+      ret = [];
+      for (ifq <- ifQuestions) {
+        ret = ret + _flatten(ifq, andExpr(condition, expr));
+      }
+      for (elq <- elseQuestions) {
+        ret = ret + _flatten(elq, andExpr(condition, notExpr(expr)));
+      }
+      return ret;
+    }
+
+    case ifThen(expr, ifQuestions): {
+      ret = [];
+      for (ifq <- ifQuestions) {
+        ret = ret + _flatten(ifq, andExpr(condition, expr));
+      }
+      return ret;
+    }
+
+     default: throw "Unhandled question: <q>";
+  }
 }
 
 /* Rename refactoring:

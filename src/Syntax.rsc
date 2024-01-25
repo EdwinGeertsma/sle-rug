@@ -51,7 +51,7 @@ lexical Int
 
 lexical Bool 
   = "true" |
-    "false ";
+    "false";
 
 
 
