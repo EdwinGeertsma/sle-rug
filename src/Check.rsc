@@ -41,8 +41,12 @@ TEnv collect(AForm f) {
 set[Message] check(AForm f, TEnv tenv, UseDef useDef) {
   set[Message] msgs = {};
 
-  for (/AQuestion q := f) {
+  for (/AQuestion q <- f) {
     msgs += check(q, tenv, useDef);
+  }
+
+  for (/AExpr expr <- f) {
+    msgs += check(expr, tenv, useDef);
   }
 
   return msgs;
@@ -53,14 +57,16 @@ set[Message] check(AForm f, TEnv tenv, UseDef useDef) {
 set[Message] checkDuplicateLabels(AId id, str text, TEnv tenv) {
   set[Message] msgs = {};
 
-  for (<_, _, l, _> <- tenv) {
-    if (l == text) {
-      msgs += { warning("Warning! Duplicate labels!", id.src) };
+  for (<loc lloc, str _, str l, _> <- tenv) {
+    if (id.src != lloc && l == text) {
+      msgs += { warning("Warning: duplicate labels!", id.src) };
+      break; // Once a duplicate is found, no need to check further
     }
   }
 
   return msgs;
 }
+
 
 // check if a question with the same name but different type has already been defined
 // and produce error
@@ -75,6 +81,7 @@ set[Message] checkDiffTypes(AId id, AType varType, TEnv tenv) {
 
   return msgs;
 }
+
 
 // check if the type of a computed question matches the type of the expression and ensure it 
 set[Message] checkComputedQType(AExpr expr, AType varType, TEnv tenv, UseDef useDef) {
@@ -128,6 +135,40 @@ set[Message] check(AQuestion q, TEnv tenv, UseDef useDef) {
   return msgs;
 }
 
+str typeString(Type t) {
+    switch (t) {
+        case tint(): return "int";
+        case tbool(): return "bool";
+        case tstr(): return "string";
+        default: return "unknown";
+    }
+}
+
+set[Message] checkOperandsType(AExpr left, AExpr right,  Type expectedType, TEnv tenv, UseDef useDef) {
+    set[Message] msgs = {};
+
+    Type leftType = typeOf(left, tenv, useDef);
+    Type rightType = typeOf(right, tenv, useDef);
+
+    if (leftType != expectedType) {
+      msgs +=  {error("Error: Operation expects operands of type <typeString(rightType)>!" , left.src)};
+    } 
+
+    if (rightType != expectedType) {
+      msgs += {error("Error: Operation expects operands of type <typeString(leftType)>!" , right.src)};
+    }
+
+    return msgs;
+}
+
+set[Message] checkOperandType(AExpr expr, Type expectedType, TEnv tenv, UseDef useDef, str context) {
+    Type exprType = typeOf(expr, tenv, useDef);
+    if (exprType != expectedType) {
+        return {error("Error: " + context + " expects operands of type " + typeString(expectedType) + "!", expr.src)};
+    }
+    return {};
+}
+
 // Check operand compatibility with operators.
 // E.g. for an addition node add(lhs, rhs), 
 //   the requirement is that typeOf(lhs) == typeOf(rhs) == tint()
@@ -141,89 +182,47 @@ set[Message] check(AExpr e, TEnv tenv, UseDef useDef) {
     case bracketExpr(AExpr x):
       msgs += check(x, tenv, useDef);
 
-    // Arithmetic expressions
+      // Arithmetic expressions
     case mulExpr(AExpr left, AExpr right):
-    {
-      msgs += checkArithmeticOperand(left, tenv, useDef);
-      msgs += checkArithmeticOperand(right, tenv, useDef);
-    }
+      msgs += checkOperandsType(left, right, tint(), tenv, useDef);
     case divExpr(AExpr left, AExpr right):
-    {
-      msgs += checkArithmeticOperand(left, tenv, useDef);
-      msgs += checkArithmeticOperand(right, tenv, useDef);
-    }
+      msgs += checkOperandsType(left, right, tint(), tenv, useDef);
     case addExpr(AExpr left, AExpr right):
-    {
-      msgs += checkArithmeticOperand(left, tenv, useDef);
-      msgs += checkArithmeticOperand(right, tenv, useDef);
-    }
+      msgs += checkOperandsType(left, right, tint(), tenv, useDef);
     case subExpr(AExpr left, AExpr right):
-    {
-      msgs += checkArithmeticOperand(left, tenv, useDef);
-      msgs += checkArithmeticOperand(right, tenv, useDef);
-    }
+      msgs += checkOperandsType(left, right, tint(), tenv, useDef);
 
     // Boolean expressions
     case notExpr(AExpr not):
-    {
-      msgs += checkBooleanOperand(not, tenv, useDef);
-    }
+      msgs += checkOperandType(not, tbool(), tenv, useDef, "Boolean operation");
     case andExpr(AExpr left, AExpr right):
-    {
-      msgs += checkBooleanOperand(left, tenv, useDef);
-      msgs += checkBooleanOperand(right, tenv, useDef);
-    }
+      checkOperandsType(left, right, tbool(), tenv, useDef);
     case orExpr(AExpr left, AExpr right):
-    {
-      msgs += checkBooleanOperand(left, tenv, useDef);
-      msgs += checkBooleanOperand(right, tenv, useDef);
-    }
+      checkOperandsType(left, right, tbool(), tenv, useDef);
 
     // Comparison expressions
     case eqExpr(AExpr left, AExpr right):
-      msgs += checkComparisonOperands(left, right, tenv, useDef);
+      msgs += checkOperandsType(left, right, tint(), tenv, useDef);
     case neqExpr(AExpr left, AExpr right):
-      msgs += checkComparisonOperands(left, right, tenv, useDef);
+      msgs += checkOperandsType(left, right, tint(), tenv, useDef);
     case htExpr(AExpr left, AExpr right):
-      msgs += checkComparisonOperands(left, right, tenv, useDef);
+      msgs += checkOperandsType(left, right, tint(), tenv, useDef);
     case hteExpr(AExpr left, AExpr right):
-      msgs += checkComparisonOperands(left, right, tenv, useDef);
+      msgs += checkOperandsType(left, right, tint(), tenv, useDef);
     case ltExpr(AExpr left, AExpr right):
-      msgs += checkComparisonOperands(left, right, tenv, useDef);
+      msgs += checkOperandsType(left, right, tint(), tenv, useDef);
     case lteExpr(AExpr left, AExpr right):
-        msgs += checkComparisonOperands(left, right, tenv, useDef);
+      msgs += checkOperandsType(left, right, tint(), tenv, useDef);
 
-    default : {};
+    //default : {};
   }
   return msgs;
 }
 
-// Helper functions for different types of expressions
-set[Message] checkArithmeticOperand(AExpr expr, TEnv tenv, UseDef useDef) {
-    return checkInt(typeOf(expr, tenv, useDef)) ? {} : {error("Error: Expected type is int!", expr.src)};
-}
-
-set[Message] checkBooleanOperand(AExpr expr, TEnv tenv, UseDef useDef) {
-    return checkBool(typeOf(expr, tenv, useDef)) ? {} : {error("Error: Expected type is bool!", expr.src)};
-}
-
-set[Message] checkComparisonOperands(AExpr left, AExpr right, TEnv tenv, UseDef useDef) {
-    return typeOf(left, tenv, useDef) == typeOf(right, tenv, useDef) ? {} : {error("Error: Operands for comparison do not match!", left.src)};
-}
-
-bool checkBool(Type t) {
-    return t == tbool() || t == tunknown();
-}
-
-bool checkInt(Type t) {
-    return t == tint() || t == tunknown();
-}
-
-
 Type typeOf(AExpr e, TEnv tenv, UseDef useDef) {
   switch (e) {
     case ref(id(_, src = loc u)):  
-      if (<u, loc d> <- useDef, <d, x, _, Type t> <- tenv) {
+      if (<u, loc d> <- useDef, <d, _, _, Type t> <- tenv) {
         return t;
       }
     case boolExpr(_): return tbool();
@@ -245,7 +244,7 @@ Type typeOf(AExpr e, TEnv tenv, UseDef useDef) {
     case hteExpr(_, _): return tbool();
     case ltExpr(_, _): return tbool();
     case lteExpr(_, _): return tbool();
-    default: return tunknown();
+    //default: return tunknown();
   }
   return tunknown(); 
 }
