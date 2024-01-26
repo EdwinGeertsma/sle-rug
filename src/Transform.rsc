@@ -3,7 +3,6 @@ module Transform
 import Syntax;
 import Resolve;
 import AST;
-import ParseTree;
 
 /* 
  * Transforming QL forms

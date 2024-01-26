@@ -4,7 +4,6 @@ import Syntax;
 import AST;
 import ParseTree;
 
-import util::Math;
 import String;
 import Boolean;
 
@@ -62,9 +61,9 @@ AExpr cst2ast(Expr e) {
 
     case (Expr)`!<Expr not>`: return notExpr(cst2ast(not), src=e.src); 
     case (Expr)`<Expr left> \< <Expr right>`: return ltExpr(cst2ast(left), cst2ast(right), src=e.src);
-    case (Expr)`<Expr left> \> <Expr right>`: return gtExpr(cst2ast(left), cst2ast(right), src=e.src);
+    case (Expr)`<Expr left> \> <Expr right>`: return htExpr(cst2ast(left), cst2ast(right), src=e.src);
     case (Expr)`<Expr left> \<= <Expr right>`: return lteExpr(cst2ast(left), cst2ast(right), src=e.src);
-    case (Expr)`<Expr left> \>= <Expr right>`: return gteExpr(cst2ast(left), cst2ast(right), src=e.src);
+    case (Expr)`<Expr left> \>= <Expr right>`: return hteExpr(cst2ast(left), cst2ast(right), src=e.src);
     case (Expr)`<Expr left> == <Expr right>`: return eqExpr(cst2ast(left), cst2ast(right), src=e.src); 
     case (Expr)`<Expr left> != <Expr right>`: return neqExpr(cst2ast(left), cst2ast(right), src=e.src);
     

@@ -104,7 +104,14 @@ set[Message] check(AQuestion q, TEnv tenv, UseDef useDef) {
   switch(q) {
     case question(AId id, str text, AType varType):
     {
-      msgs += checkDiffTypes(id, varType, tenv) + checkDuplicateLabels(id, text, tenv);
+      //msgs += checkDiffTypes(id, varType, tenv) + checkDuplicateLabels(id, text, tenv);
+      for (<loc lloc, str _, str l, _> <- tenv) {
+        if (id.src != lloc && l == text) {
+          msgs += { warning("Warning: duplicate labels!", q.src) };
+          break; 
+        }
+      }
+      msgs += checkDiffTypes(id, varType, tenv);
     }
 
     case computedQuestion(AId id, str text, AType varType, AExpr expr):
