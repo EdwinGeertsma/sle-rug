@@ -3,8 +3,8 @@ module Transform
 import Syntax;
 import Resolve;
 import AST;
+import ParseTree;
 
-import IO;
 /* 
  * Transforming QL forms
  */
@@ -74,10 +74,31 @@ list[AQuestion] _flatten(AQuestion q, AExpr condition) {
  * Use the results of name resolution to find the equivalence class of a name.
  *
  */
- 
+
 start[Form] rename(start[Form] f, loc useOrDef, str newName, UseDef useDef) {
-   return f; 
-} 
+  loc defLocation = useOrDef;
+  for (<loc use, loc def> <- useDef) {
+    if (use == useOrDef) {
+      defLocation = def;
+      break;
+    }
+  }
+
+  set[loc] rename = {defLocation};
+
+  // Collect uses and definitions associated with the identifier
+  for (<loc useLoc, loc def> <- useDef) {
+    if (def == defLocation) {
+      rename += useLoc;
+    }
+  }
+  
+  // Traverse the AST and rename the identifier
+  return visit(f) {
+    case Id x => [Id]newName
+      when x.src in rename
+  };
+}
  
  
  
