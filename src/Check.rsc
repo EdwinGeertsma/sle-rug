@@ -37,7 +37,7 @@ TEnv collect(AForm f) {
   return tenv;
 }
 
-// Iterate over questions in the form and do checks
+// Iterate over questions and expressions in the form and do checks
 set[Message] check(AForm f, TEnv tenv, UseDef useDef) {
   set[Message] msgs = {};
 
@@ -60,7 +60,7 @@ set[Message] checkDuplicateLabels(AId id, str text, TEnv tenv) {
   for (<loc lloc, str _, str l, _> <- tenv) {
     if (id.src != lloc && l == text) {
       msgs += { warning("Warning: duplicate labels!", id.src) };
-      break; // Once a duplicate is found, no need to check further
+      break; 
     }
   }
 
